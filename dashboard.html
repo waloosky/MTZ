@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Modern Physics Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep:    #050a0f;
+      --bg-mid:     #0a1628;
+      --cyan:       #00e5ff;
+      --cyan-dim:   #00b8d4;
+      --amber:      #ffab00;
+      --green:      #00e676;
+      --purple:     #b388ff;
+      --pink:       #ff80ab;
+      --glass:      rgba(255,255,255,0.03);
+      --text:       #e0f7fa;
+      --text-dim:   #80cbc4;
+      --red:        #ff6e40;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-deep);
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── Atom Canvas Background ── */
+    #atomCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.018) 1px, transparent 1px);
+      background-size: 52px 52px;
+      pointer-events: none;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(5,10,15,0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(0,229,255,0.08);
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .nav-brand-icon { font-size: 20px; }
+    .nav-brand-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px; font-weight: 700;
+      color: var(--cyan);
+      text-shadow: 0 0 16px rgba(0,229,255,0.5);
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 2px;
+      list-style: none;
+    }
+    .nav-links a {
+      display: block;
+      padding: 8px 14px;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--cyan); background: rgba(0,229,255,0.06); }
+
+    .dropdown { position: relative; }
+    .dropdown > a::after { content: ' ▾'; font-size: 10px; opacity: 0.6; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      background: rgba(5,10,15,0.98);
+      border: 1px solid rgba(0,229,255,0.1);
+      border-radius: 12px;
+      backdrop-filter: blur(24px);
+      min-width: 180px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(0,229,255,0.04);
+      z-index: 200;
+      animation: dropIn 0.18s ease both;
+    }
+    @keyframes dropIn {
+      from { opacity:0; transform: translateY(-6px); }
+      to   { opacity:1; transform: none; }
+    }
+    .dropdown:hover .dropdown-menu { display: block; }
+    .dropdown-menu li a {
+      border-radius: 0; font-size: 13px;
+      border-bottom: 1px solid rgba(0,229,255,0.04);
+      padding: 10px 18px;
+    }
+    .dropdown-menu li:last-child a { border-bottom: none; }
+    .dropdown-menu a:hover { background: rgba(0,229,255,0.07); color: var(--cyan); }
+
+    .nav-toggle {
+      display: none;
+      background: none; border: none;
+      color: var(--cyan); font-size: 22px;
+      cursor: pointer; padding: 4px 8px;
+    }
+
+    /* ── Page ── */
+    .page { position: relative; z-index: 10; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 72px 24px 56px;
+      position: relative;
+    }
+
+    /* Particle orbit animation */
+    .orbit-ring {
+      position: absolute;
+      left: 50%; top: 50%;
+      border: 1px solid rgba(0,229,255,0.08);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .orbit-ring.r1 { width: 300px; height: 300px; animation: spin 12s linear infinite; }
+    .orbit-ring.r2 { width: 480px; height: 480px; animation: spin 20s linear infinite reverse; border-color: rgba(255,171,0,0.06); }
+    .orbit-ring.r3 { width: 660px; height: 660px; animation: spin 32s linear infinite; border-color: rgba(179,136,255,0.04); }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    .orbit-dot {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      top: -4px; left: 50%;
+      transform: translateX(-50%);
+    }
+    .orbit-dot.cyan  { background: var(--cyan);   box-shadow: 0 0 10px var(--cyan); }
+    .orbit-dot.amber { background: var(--amber);  box-shadow: 0 0 10px var(--amber); }
+    .orbit-dot.purple{ background: var(--purple); box-shadow: 0 0 10px var(--purple); }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 18px;
+      background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.18);
+      border-radius: 50px;
+      font-size: 11px; color: var(--cyan);
+      letter-spacing: 1.5px; font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s ease both;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(26px, 5vw, 48px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--amber) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    .hero-sub {
+      font-size: 15px; color: var(--text-dim);
+      max-width: 500px; margin: 0 auto 36px;
+      line-height: 1.8; font-weight: 400;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .hero-sub strong { color: var(--amber); font-weight: 600; }
+
+    .hero-stats {
+      display: flex; align-items: center; justify-content: center; gap: 36px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 30px; font-weight: 900;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(0,229,255,0.4);
+      line-height: 1;
+    }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 5px; letter-spacing: 1px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+    .stat-divider { width: 1px; height: 40px; background: linear-gradient(to bottom, transparent, rgba(0,229,255,0.2), transparent); }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(20px); }
+      to   { opacity:1; transform: none; }
+    }
+
+    /* ── Section ── */
+    .section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 72px;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 28px;
+    }
+    .section-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(0,229,255,0.15), transparent);
+    }
+    .section-title {
+      font-size: 11px; font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: rgba(0,229,255,0.3);
+      letter-spacing: 1px;
+    }
+
+    /* ── Quiz grid ── */
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .quiz-card {
+      position: relative;
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 24px 22px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex; flex-direction: column; gap: 12px;
+      transition: transform 0.28s ease, border-color 0.28s, box-shadow 0.28s, background 0.28s;
+      overflow: hidden;
+      animation: cardIn 0.5s ease both;
+      cursor: pointer;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(22px) scale(0.97); }
+      to   { opacity:1; transform: none; }
+    }
+    .quiz-card:nth-child(1)  { animation-delay: 0.05s; }
+    .quiz-card:nth-child(2)  { animation-delay: 0.10s; }
+    .quiz-card:nth-child(3)  { animation-delay: 0.15s; }
+    .quiz-card:nth-child(4)  { animation-delay: 0.20s; }
+    .quiz-card:nth-child(5)  { animation-delay: 0.25s; }
+    .quiz-card:nth-child(6)  { animation-delay: 0.30s; }
+    .quiz-card:nth-child(7)  { animation-delay: 0.35s; }
+    .quiz-card:nth-child(8)  { animation-delay: 0.40s; }
+    .quiz-card:nth-child(9)  { animation-delay: 0.45s; }
+
+    /* Shimmer on hover */
+    .quiz-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.5s ease;
+    }
+    .quiz-card:hover::after { left: 160%; }
+
+    .quiz-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      border-color: var(--card-color, var(--cyan));
+      box-shadow: 0 0 0 1px var(--card-color, var(--cyan)) inset,
+                  0 12px 40px -8px var(--card-shadow, rgba(0,229,255,0.2)),
+                  0 0 60px -20px var(--card-shadow, rgba(0,229,255,0.15));
+      background: rgba(255,255,255,0.05);
+    }
+
+    .card-top { display: flex; align-items: center; justify-content: space-between; }
+    .card-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      transition: border-color 0.28s, box-shadow 0.28s;
+    }
+    .quiz-card:hover .card-icon {
+      border-color: var(--card-color, var(--cyan));
+      box-shadow: 0 0 16px var(--card-shadow, rgba(0,229,255,0.2));
+    }
+    .card-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--card-color, var(--cyan));
+      letter-spacing: 1px;
+      opacity: 0.5;
+    }
+    .card-title { font-size: 14px; font-weight: 700; line-height: 1.4; }
+    .card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.65; flex: 1; }
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 4px;
+    }
+    .card-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.04);
+      color: var(--card-color, var(--cyan));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .card-arrow {
+      font-size: 16px;
+      color: var(--card-color, var(--cyan));
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .quiz-card:hover .card-arrow { opacity: 1; transform: none; }
+
+    /* Color themes */
+    .c-cyan   { --card-color: #00e5ff; --card-shadow: rgba(0,229,255,0.2); }
+    .c-amber  { --card-color: #ffab00; --card-shadow: rgba(255,171,0,0.2); }
+    .c-green  { --card-color: #00e676; --card-shadow: rgba(0,230,118,0.2); }
+    .c-purple { --card-color: #b388ff; --card-shadow: rgba(179,136,255,0.2); }
+    .c-pink   { --card-color: #ff80ab; --card-shadow: rgba(255,128,171,0.2); }
+    .c-sky    { --card-color: #40c4ff; --card-shadow: rgba(64,196,255,0.2); }
+    .c-lime   { --card-color: #ccff90; --card-shadow: rgba(204,255,144,0.2); }
+    .c-red    { --card-color: #ff6e40; --card-shadow: rgba(255,110,64,0.2); }
+
+    /* ── Pages grid ── */
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .page-card {
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 18px 16px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex; align-items: center; gap: 12px;
+      transition: all 0.25s ease;
+      animation: cardIn 0.5s ease both;
+    }
+    .page-card:hover { border-color: rgba(0,229,255,0.2); background: rgba(0,229,255,0.03); transform: translateX(4px); }
+    .page-icon { font-size: 22px; }
+    .page-text { flex: 1; }
+    .page-text strong { font-size: 13px; font-weight: 600; display: block; margin-bottom: 2px; }
+    .page-text span { font-size: 11px; color: var(--text-dim); }
+    .page-arrow { font-size: 14px; color: var(--cyan); opacity: 0.4; transition: opacity 0.2s, transform 0.2s; }
+    .page-card:hover .page-arrow { opacity: 1; transform: translateX(4px); }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid rgba(0,229,255,0.06);
+      padding: 28px 24px;
+      text-align: center;
+      position: relative; z-index: 10;
+    }
+    .footer-text {
+      font-size: 12px; color: rgba(128,203,196,0.35);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .footer-name { color: var(--amber); font-weight: 600; }
+
+    /* ── Floating formula particles ── */
+    .formula-float {
+      position: fixed;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: rgba(0,229,255,0.12);
+      pointer-events: none;
+      z-index: 2;
+      animation: floatUp linear infinite;
+      white-space: nowrap;
+    }
+    @keyframes floatUp {
+      0%   { opacity: 0; transform: translateY(0); }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.8; }
+      100% { opacity: 0; transform: translateY(-100vh); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .navbar { padding: 0 16px; }
+      .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; right: 0; left: 0; background: rgba(5,10,15,0.98); border-bottom: 1px solid rgba(0,229,255,0.08); padding: 12px 0; }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a { padding: 12px 24px; border-radius: 0; }
+      .dropdown-menu { position: static; border: none; background: rgba(0,229,255,0.03); box-shadow: none; animation: none; }
+      .nav-toggle { display: block; }
+      .hero-stats { gap: 20px; }
+      .stat-divider { display: none; }
+      .orbit-ring.r2, .orbit-ring.r3 { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, .orbit-ring, .formula-float { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Atom canvas -->
+  <canvas id="atomCanvas"></canvas>
+  <div class="grid-overlay"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="nav-brand" href="dashboard.html">
+      <span class="nav-brand-icon">⚛️</span>
+      <span class="nav-brand-text">MODERN PHYSICS</span>
+    </a>
+
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">🏠 Home</a></li>
+
+      <li class="dropdown">
+        <a href="#">📝 Quizzes</a>
+        <ul class="dropdown-menu">
+          <li><a href="quiz1.html">⚡ Quiz 1</a></li>
+          <li><a href="quiz2.html">🔬 Quiz 2</a></li>
+          <li><a href="quiz3.html">🌊 Quiz 3</a></li>
+          <li><a href="quiz4.html">💡 Quiz 4</a></li>
+          <li><a href="quiz5.html">🧲 Quiz 5</a></li>
+          <li><a href="quiz6.html">☢️ Quiz 6</a></li>
+          <li><a href="quiz7.html">🌌 Quiz 7</a></li>
+          <li><a href="quiz8.html">⚛️ Quiz 8</a></li>
+          <li><a href="quiz9.html">🔭 Quiz 9</a></li>
+        </ul>
+      </li>
+
+      <li><a href="about.html">👨‍🏫 About</a></li>
+      <li><a href="contact.html">📞 Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page -->
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <!-- Orbital rings -->
+      <div class="orbit-ring r1"><div class="orbit-dot cyan"></div></div>
+      <div class="orbit-ring r2"><div class="orbit-dot amber"></div></div>
+      <div class="orbit-ring r3"><div class="orbit-dot purple"></div></div>
+
+      <div class="hero-badge">⚛️ &nbsp; Interactive Physics Quiz Platform</div>
+      <h1 class="hero-title">Welcome</h1>
+      <p class="hero-sub">
+        Choose a quiz and begin your journey through Modern Physics<br/>
+        with <strong>Prof. Walid Khalid Al-Fatlawi</strong>
+      </p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num" id="cnt1">0</div>
+          <div class="stat-label">Quizzes Available</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <div class="stat-num">⚛️</div>
+          <div class="stat-label">Modern Physics</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <div class="stat-num" id="cnt2">0</div>
+          <div class="stat-label">% Interactive</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quizzes -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">📝 Quizzes</span>
+        <div class="section-line"></div>
+        <span class="section-tag">// 9 modules</span>
+      </div>
+
+      <div class="quiz-grid">
+
+        <a href="quiz1.html" class="quiz-card c-cyan">
+          <div class="card-top">
+            <div class="card-icon">⚡</div>
+            <span class="card-num">01</span>
+          </div>
+          <div class="card-title">Quiz 1</div>
+          <div class="card-desc">Chapter 1 — Capacitors & Electric Fields</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.01</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz2.html" class="quiz-card c-amber">
+          <div class="card-top">
+            <div class="card-icon">🔬</div>
+            <span class="card-num">02</span>
+          </div>
+          <div class="card-title">Quiz 2</div>
+          <div class="card-desc">Chapter 2 — Electromagnetic Induction</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.02</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz3.html" class="quiz-card c-green">
+          <div class="card-top">
+            <div class="card-icon">🌊</div>
+            <span class="card-num">03</span>
+          </div>
+          <div class="card-title">Quiz 3</div>
+          <div class="card-desc">Chapter 3 — Alternating Current</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.03</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz4.html" class="quiz-card c-purple">
+          <div class="card-top">
+            <div class="card-icon">💡</div>
+            <span class="card-num">04</span>
+          </div>
+          <div class="card-title">Quiz 4</div>
+          <div class="card-desc">Chapter 4 — Electromagnetic Waves</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.04</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz5.html" class="quiz-card c-pink">
+          <div class="card-top">
+            <div class="card-icon">🧲</div>
+            <span class="card-num">05</span>
+          </div>
+          <div class="card-title">Quiz 5</div>
+          <div class="card-desc">Chapter 5 — Physical Optics</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.05</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz6.html" class="quiz-card c-red">
+          <div class="card-top">
+            <div class="card-icon">☢️</div>
+            <span class="card-num">06</span>
+          </div>
+          <div class="card-title">Quiz 6</div>
+          <div class="card-desc">Chapter 6 — Modern Physics Foundations</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.06</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz7.html" class="quiz-card c-sky">
+          <div class="card-top">
+            <div class="card-icon">🌌</div>
+            <span class="card-num">07</span>
+          </div>
+          <div class="card-title">Quiz 7</div>
+          <div class="card-desc">Chapter 7 — Solid-State Electronics</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.07</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz8.html" class="quiz-card c-lime">
+          <div class="card-top">
+            <div class="card-icon">⚛️</div>
+            <span class="card-num">08</span>
+          </div>
+          <div class="card-title">Quiz 8</div>
+          <div class="card-desc">Chapter 8 — Atomic Spectra & Lasers</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.08</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="quiz9.html" class="quiz-card c-amber">
+          <div class="card-top">
+            <div class="card-icon">🔭</div>
+            <span class="card-num">09</span>
+          </div>
+          <div class="card-title">Quiz 9</div>
+          <div class="card-desc">Chapter 9 — Nuclear Physics</div>
+          <div class="card-footer">
+            <span class="card-tag">CH.09</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Other pages -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🔗 Platform Links</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="pages-grid">
+        <a href="about.html" class="page-card">
+          <span class="page-icon">👨‍🏫</span>
+          <div class="page-text">
+            <strong>About the Professor</strong>
+            <span>Prof. Walid Khalid Al-Fatlawi</span>
+          </div>
+          <span class="page-arrow">→</span>
+        </a>
+
+        <a href="contact.html" class="page-card">
+          <span class="page-icon">📞</span>
+          <div class="page-text">
+            <strong>Contact Us</strong>
+            <span>Inquiries & direct messaging</span>
+          </div>
+          <span class="page-arrow">→</span>
+        </a>
+
+        <a href="index.html" class="page-card">
+          <span class="page-icon">🚪</span>
+          <div class="page-text">
+            <strong>Sign Out</strong>
+            <span>Return to login portal</span>
+          </div>
+          <span class="page-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-text">
+      Modern Physics Portal &nbsp;·&nbsp;
+      <span class="footer-name">Prof. Walid Khalid Al-Fatlawi</span>
+      &nbsp;·&nbsp; 07718597632
+    </p>
+  </footer>
+
+  <script>
+    /* ── Atom canvas animation ── */
+    const canvas = document.getElementById('atomCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], nucleus = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+
+    const COLORS = ['#00e5ff','#ffab00','#b388ff','#00e676','#ff80ab','#40c4ff'];
+
+    function initParticles() {
+      particles = [];
+      const count = Math.min(80, Math.floor(W * H / 14000));
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          r: Math.random() * 1.5 + 0.5,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          alpha: Math.random() * 0.5 + 0.2,
+        });
+      }
+
+      nucleus = [];
+      // Multiple atom nuclei scattered around
+      const atomCenters = [
+        { x: W * 0.15, y: H * 0.3 },
+        { x: W * 0.85, y: H * 0.6 },
+        { x: W * 0.5,  y: H * 0.15 },
+        { x: W * 0.3,  y: H * 0.75 },
+        { x: W * 0.7,  y: H * 0.85 },
+      ];
+      atomCenters.forEach(c => {
+        const orbits = 2 + Math.floor(Math.random() * 2);
+        for (let o = 0; o < orbits; o++) {
+          const radius = 50 + o * 38;
+          const tilt   = (Math.random() * Math.PI);
+          const speed  = (0.008 + Math.random() * 0.006) * (o % 2 === 0 ? 1 : -1);
+          nucleus.push({
+            cx: c.x, cy: c.y,
+            radius, tilt, speed,
+            angle: Math.random() * Math.PI * 2,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          });
+        }
+      });
+    }
+    initParticles();
+
+    let mouse = { x: -9999, y: -9999 };
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+    function drawAtom(orb) {
+      orb.angle += orb.speed;
+      // Ellipse via transform
+      const tiltCos = Math.cos(orb.tilt);
+      const tiltSin = Math.sin(orb.tilt);
+      const ex = Math.cos(orb.angle) * orb.radius;
+      const ey = Math.sin(orb.angle) * orb.radius * 0.36;
+      const px = orb.cx + ex * tiltCos - ey * tiltSin;
+      const py = orb.cy + ex * tiltSin + ey * tiltCos;
+
+      // Draw orbit path
+      ctx.save();
+      ctx.translate(orb.cx, orb.cy);
+      ctx.rotate(orb.tilt);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, orb.radius, orb.radius * 0.36, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = orb.color + '18';
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw electron
+      ctx.beginPath();
+      ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = orb.color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = orb.color;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawNucleus(cx, cy) {
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 7);
+      grad.addColorStop(0, 'rgba(0,229,255,0.6)');
+      grad.addColorStop(1, 'rgba(0,229,255,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    function connectParticles() {
+      const maxDist = 120;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d  = Math.sqrt(dx*dx + dy*dy);
+          if (d < maxDist) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0,229,255,${0.06 * (1 - d/maxDist)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Floating particles
+      particles.forEach(p => {
+        // Mouse repulsion
+        const mdx = p.x - mouse.x, mdy = p.y - mouse.y;
+        const md  = Math.sqrt(mdx*mdx + mdy*mdy);
+        if (md < 100) {
+          p.vx += (mdx / md) * 0.05;
+          p.vy += (mdy / md) * 0.05;
+        }
+        p.vx *= 0.98; p.vy *= 0.98;
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + Math.round(p.alpha * 255).toString(16).padStart(2,'0');
+        ctx.fill();
+      });
+
+      connectParticles();
+
+      // Atom orbits
+      const atomCentersSet = new Set();
+      nucleus.forEach(o => {
+        const key = `${Math.round(o.cx)},${Math.round(o.cy)}`;
+        if (!atomCentersSet.has(key)) { atomCentersSet.add(key); drawNucleus(o.cx, o.cy); }
+        drawAtom(o);
+      });
+
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    /* ── Counter animation ── */
+    function countUp(el, target, duration) {
+      let start = 0;
+      const step = Math.ceil(target / (duration / 16));
+      const timer = setInterval(() => {
+        start = Math.min(start + step, target);
+        el.textContent = start + (target === 100 ? '%' : '');
+        if (start >= target) clearInterval(timer);
+      }, 16);
+    }
+    setTimeout(() => {
+      countUp(document.getElementById('cnt1'), 9, 800);
+      countUp(document.getElementById('cnt2'), 100, 1200);
+    }, 400);
+
+    /* ── Floating physics formulas ── */
+    const formulas = [
+      'E = mc²', 'ΔxΔp ≥ ℏ/2', 'ψ(x,t)', 'E = hf',
+      'F = qvB', '∇·B = 0', 'λ = h/p', 'E²=(pc)²+(mc²)²',
+      'iℏ∂ψ/∂t = Ĥψ', 'c = λf', 'n=1,2,3…', 'α = e²/ℏc',
+    ];
+    function spawnFormula() {
+      const el = document.createElement('div');
+      el.className = 'formula-float';
+      el.textContent = formulas[Math.floor(Math.random() * formulas.length)];
+      el.style.left = Math.random() * 90 + 'vw';
+      el.style.bottom = '-24px';
+      const dur = 18 + Math.random() * 16;
+      el.style.animationDuration = dur + 's';
+      el.style.animationDelay = '0s';
+      el.style.fontSize = (9 + Math.random() * 6) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000);
+    }
+    setInterval(spawnFormula, 2200);
+    spawnFormula(); spawnFormula(); spawnFormula();
+
+    /* ── Nav toggle ── */
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        if (window.innerWidth <= 640)
+          document.getElementById('navLinks').classList.remove('open');
+      });
+    });
+    document.querySelectorAll('.dropdown > a').forEach(a => {
+      a.addEventListener('click', e => {
+        if (window.innerWidth <= 640) {
+          e.preventDefault();
+          const menu = a.parentElement.querySelector('.dropdown-menu');
+          menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
