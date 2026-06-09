@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capacitors Quiz — Chapter 1 | 6th Scientific Physics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* ─── CSS Variables ─────────────────────────────────────────── */
+  :root {
+    --bg-deep:        #0d1117;
+    --bg-mid:         #0f1923;
+    --bg-card:        rgba(255,255,255,0.04);
+    --bg-card-hover:  rgba(255,255,255,0.07);
+    --border-glass:   rgba(255,255,255,0.10);
+    --border-glow:    rgba(0,245,255,0.35);
+
+    --cyan:      #00f5ff;
+    --purple:    #a855f7;
+    --blue:      #3b82f6;
+    --green:     #22c55e;
+    --red:       #ef4444;
+    --amber:     #f59e0b;
+
+    --cyan-dim:   rgba(0,245,255,0.12);
+    --purple-dim: rgba(168,85,247,0.12);
+    --green-dim:  rgba(34,197,94,0.15);
+    --red-dim:    rgba(239,68,68,0.15);
+
+    --text-primary:   #f0f6fc;
+    --text-secondary: #8b949e;
+    --text-muted:     #484f58;
+
+    --font: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ─── Reset & Base ──────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 1rem 4rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ─── Background Blobs ──────────────────────────────────────── */
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.18;
+  }
+  .bg-blob-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, #00f5ff 0%, transparent 70%);
+    top: -200px; left: -200px;
+    animation: drift1 18s ease-in-out infinite alternate;
+  }
+  .bg-blob-2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+    bottom: -150px; right: -150px;
+    animation: drift2 22s ease-in-out infinite alternate;
+  }
+  .bg-blob-3 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+    top: 40%; left: 55%;
+    animation: drift3 26s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(80px,60px) scale(1.15); } }
+  @keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-60px,-80px) scale(1.2); } }
+  @keyframes drift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(-40px,50px) scale(0.9); } }
+
+  /* ─── Main Container ────────────────────────────────────────── */
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  /* ─── Header / Branding ─────────────────────────────────────── */
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .header-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 100px;
+    padding: 5px 14px;
+    margin-bottom: 1rem;
+  }
+  .header-eyebrow::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--cyan);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--cyan); }
+    50% { opacity: 0.5; box-shadow: 0 0 2px var(--cyan); }
+  }
+  .header h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 45%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.6rem;
+  }
+  .header-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  /* ─── Glass Card ────────────────────────────────────────────── */
+  .glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    box-shadow:
+      0 0 0 1px rgba(0,245,255,0.06),
+      0 0 60px rgba(0,245,255,0.07),
+      0 0 120px rgba(168,85,247,0.05),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    overflow: hidden;
+    transition: box-shadow var(--transition);
+  }
+
+  /* ─── Start Screen ──────────────────────────────────────────── */
+  #start-screen {
+    padding: 3rem 3rem 2.5rem;
+    text-align: center;
+  }
+  .start-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--cyan-dim), var(--purple-dim));
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: var(--radius-lg);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 36px;
+    box-shadow: 0 0 30px rgba(0,245,255,0.15);
+  }
+  .start-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .start-desc {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 460px;
+    margin-left: auto; margin-right: auto;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 2.5rem;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+  }
+  .stat-box-val {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--cyan);
+    line-height: 1;
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+  }
+  .stat-box-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+  .btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #00f5ff 0%, #3b82f6 50%, #a855f7 100%);
+    color: #000;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    border: none;
+    border-radius: 100px;
+    padding: 14px 36px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 0 30px rgba(0,245,255,0.3), 0 0 60px rgba(168,85,247,0.15);
+  }
+  .btn-start:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 50px rgba(0,245,255,0.45), 0 0 80px rgba(168,85,247,0.25);
+  }
+  .btn-start:active { transform: scale(0.98); }
+
+  /* ─── Quiz Screen ───────────────────────────────────────────── */
+  #quiz-screen { display: none; padding: 0; }
+
+  /* Progress Bar */
+  .progress-bar-wrap {
+    padding: 1.5rem 2rem 0;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+  .progress-fraction {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+  .progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--purple));
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px var(--cyan);
+  }
+
+  /* Question Body */
+  .question-body {
+    padding: 1.75rem 2rem 0;
+  }
+  .question-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--purple);
+    background: var(--purple-dim);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-bottom: 1rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.65;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Options */
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 2rem;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font);
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background var(--transition);
+  }
+  .option-btn:not(:disabled):hover {
+    border-color: rgba(0,245,255,0.25);
+    background: rgba(0,245,255,0.05);
+    transform: translateX(4px);
+    box-shadow: 0 0 20px rgba(0,245,255,0.08);
+  }
+  .option-btn:disabled { cursor: not-allowed; }
+  .option-label {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+  .option-text { flex: 1; line-height: 1.5; }
+
+  /* Correct / Incorrect States */
+  .option-btn.correct {
+    border-color: var(--green) !important;
+    background: var(--green-dim) !important;
+    box-shadow: 0 0 20px rgba(34,197,94,0.2), inset 0 0 20px rgba(34,197,94,0.05) !important;
+    transform: none !important;
+  }
+  .option-btn.correct .option-label {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+  .option-btn.incorrect {
+    border-color: var(--red) !important;
+    background: var(--red-dim) !important;
+    box-shadow: 0 0 20px rgba(239,68,68,0.2), inset 0 0 20px rgba(239,68,68,0.05) !important;
+    animation: shake 0.4s ease;
+    transform: none !important;
+  }
+  .option-btn.incorrect .option-label {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* Explanation Box */
+  .explanation-box {
+    margin: 1.5rem 2rem 0;
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display: none;
+    animation: fadeSlideUp 0.35s ease forwards;
+  }
+  .explanation-box.show { display: flex; gap: 12px; }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .explanation-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .explanation-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--blue);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .explanation-text {
+    font-size: 13.5px;
+    color: rgba(240,246,252,0.75);
+    line-height: 1.65;
+  }
+
+  /* Next Button Area */
+  .quiz-footer {
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+  }
+  .score-mini {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-right: auto;
+  }
+  .score-mini span { color: var(--cyan); font-weight: 700; }
+  .btn-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(0,245,255,0.15), rgba(168,85,247,0.15));
+    border: 1px solid rgba(0,245,255,0.3);
+    border-radius: 100px;
+    color: var(--cyan);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 0 20px rgba(0,245,255,0.1);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .btn-next.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .btn-next:hover {
+    background: linear-gradient(135deg, rgba(0,245,255,0.25), rgba(168,85,247,0.25));
+    box-shadow: 0 0 35px rgba(0,245,255,0.2);
+    transform: translateY(-1px);
+  }
+
+  /* ─── Score Screen ──────────────────────────────────────────── */
+  #score-screen { display: none; padding: 3rem 2.5rem; text-align: center; }
+
+  .score-ring-wrap {
+    position: relative;
+    width: 160px; height: 160px;
+    margin: 0 auto 2rem;
+  }
+  .score-ring {
+    width: 160px; height: 160px;
+    transform: rotate(-90deg);
+  }
+  .score-ring-track {
+    fill: none;
+    stroke: rgba(255,255,255,0.06);
+    stroke-width: 10;
+  }
+  .score-ring-fill {
+    fill: none;
+    stroke: url(#ring-gradient);
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+  .score-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .score-ring-number {
+    font-size: 2.2rem;
+    font-weight: 900;
+    font-family: var(--font-mono);
+    line-height: 1;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .score-ring-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .score-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .score-message {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .score-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 2.5rem;
+  }
+  .bento-cell {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+  }
+  .bento-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .bento-label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+  }
+  .bento-cell.c-green .bento-val { color: var(--green); }
+  .bento-cell.c-red .bento-val   { color: var(--red); }
+  .bento-cell.c-amber .bento-val { color: var(--amber); }
+
+  .btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #00f5ff, #a855f7);
+    color: #000;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 100px;
+    padding: 13px 32px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 0 30px rgba(0,245,255,0.25);
+  }
+  .btn-retry:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 50px rgba(0,245,255,0.4);
+  }
+
+  /* ─── Footer ────────────────────────────────────────────────── */
+  .footer {
+    position: relative;
+    z-index: 1;
+    margin-top: 2.5rem;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .footer strong {
+    color: var(--cyan);
+    font-weight: 600;
+  }
+  .footer-divider {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
+    margin: 0 auto 10px;
+  }
+
+  /* ─── Responsive ─────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    body { padding: 1rem 0.75rem 3rem; }
+    #start-screen, #score-screen { padding: 2rem 1.5rem; }
+    .progress-bar-wrap, .question-body { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .options-grid { padding: 0 1.25rem; }
+    .explanation-box { margin: 1.25rem 1.25rem 0; }
+    .quiz-footer { padding: 1.25rem 1.25rem 1.75rem; }
+    .stats-grid, .score-bento { grid-template-columns: repeat(3, 1fr); }
+    .stat-box-val { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background Blobs -->
+<div class="bg-blob bg-blob-1" aria-hidden="true"></div>
+<div class="bg-blob bg-blob-2" aria-hidden="true"></div>
+<div class="bg-blob bg-blob-3" aria-hidden="true"></div>
+
+<div class="container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-eyebrow">6th Scientific — Iraqi Curriculum 2026</div>
+    <h1>Capacitors Challenge</h1>
+    <p class="header-subtitle">Chapter 1 · Physics · Ministerial MCQ Bank</p>
+  </header>
+
+  <!-- Main Card -->
+  <div class="glass-card" id="main-card">
+
+    <!-- ══ START SCREEN ══════════════════════════════════════ -->
+    <div id="start-screen">
+      <div class="start-icon" aria-hidden="true">⚡</div>
+      <h2 class="start-title">Ready to test your knowledge?</h2>
+      <p class="start-desc">
+        20 randomly selected ministerial-grade questions from the full 80-question bank.
+        Each session is unique. Detailed scientific explanations included.
+      </p>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-box-val">80</div>
+          <div class="stat-box-label">Question Bank</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val">20</div>
+          <div class="stat-box-label">Per Session</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val">4</div>
+          <div class="stat-box-label">Options Each</div>
+        </div>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">
+        Start Challenge ⚡
+      </button>
+    </div>
+
+    <!-- ══ QUIZ SCREEN ═══════════════════════════════════════ -->
+    <div id="quiz-screen">
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-wrap">
+        <div class="progress-meta">
+          <span class="progress-label">Question <span id="q-num">1</span></span>
+          <span class="progress-fraction"><span id="q-curr">1</span> / 20</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:5%"></div>
+        </div>
+      </div>
+
+      <!-- Question -->
+      <div class="question-body">
+        <div class="question-tag">Capacitors · Ch. 1</div>
+        <p class="question-text" id="question-text">Loading…</p>
+      </div>
+
+      <!-- Options -->
+      <div class="options-grid" id="options-grid"></div>
+
+      <!-- Explanation -->
+      <div class="explanation-box" id="explanation-box">
+        <div class="explanation-icon" aria-hidden="true">💡</div>
+        <div>
+          <div class="explanation-label">Scientific Explanation</div>
+          <div class="explanation-text" id="explanation-text"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="quiz-footer">
+        <div class="score-mini">Score: <span id="score-live">0</span> / <span id="answered-live">0</span></div>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+          Next Question →
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ SCORE SCREEN ══════════════════════════════════════ -->
+    <div id="score-screen">
+      <svg width="160" height="160" class="score-ring" viewBox="0 0 160 160" aria-hidden="true">
+        <defs>
+          <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f5ff"/>
+            <stop offset="100%" stop-color="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <circle class="score-ring-track" cx="80" cy="80" r="68"/>
+        <circle class="score-ring-fill" id="ring-fill" cx="80" cy="80" r="68"
+          stroke-dasharray="427.26" stroke-dashoffset="427.26"/>
+      </svg>
+      <div class="score-ring-text">
+        <div class="score-ring-number" id="final-score-num">0/20</div>
+        <div class="score-ring-label" id="final-pct">0%</div>
+      </div>
+
+      <h2 class="score-title" id="result-title">Challenge Complete!</h2>
+      <p class="score-message" id="result-message"></p>
+
+      <div class="score-bento">
+        <div class="bento-cell c-green">
+          <div class="bento-val" id="b-correct">0</div>
+          <div class="bento-label">Correct</div>
+        </div>
+        <div class="bento-cell c-red">
+          <div class="bento-val" id="b-wrong">0</div>
+          <div class="bento-label">Incorrect</div>
+        </div>
+        <div class="bento-cell c-amber">
+          <div class="bento-val" id="b-pct">0%</div>
+          <div class="bento-label">Accuracy</div>
+        </div>
+      </div>
+
+      <button class="btn-retry" onclick="startQuiz()">
+        🔄 Retry Challenge
+      </button>
+    </div>
+
+  </div><!-- /.glass-card -->
+
+  <!-- Footer Branding -->
+  <footer class="footer">
+    <div class="footer-divider"></div>
+    Designed &amp; Developed for <strong>Master Walid Khalid Al-Fatlawi</strong>
+  </footer>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   QUESTION BANK — 80 Ministerial MCQs (Chapter 1: Capacitors)
+   6th Scientific Physics — Iraqi Curriculum
+═══════════════════════════════════════════════════════════ */
+const QUESTION_BANK = [
+  {
+    id: 1,
+    question: "A single spherical insulated conductor is rarely used to store electrical charges because:",
+    options: [
+      "It can store an infinite amount of charges safely.",
+      "Adding more charges inevitably increases its potential, leading to electrical discharge into the surrounding air.",
+      "The electric field remains constant regardless of the added charges.",
+      "It converts electrical charges into magnetic fields."
+    ],
+    correct: 1,
+    explanation: "For an isolated sphere, V = kQ/r. As more charge Q is added, the potential V rises proportionally. When the electric field at the surface reaches ~3 MV/m (the breakdown strength of air), the surrounding air ionizes and charge leaks away — making isolated spheres impractical for charge storage."
+  },
+  {
+    id: 2,
+    question: "The capacitance of a capacitor is defined as:",
+    options: [
+      "The product of the stored charge and the potential difference.",
+      "The ratio of the potential difference to the stored charge.",
+      "The ratio of the charge stored on any of its plates to the potential difference between them.",
+      "The square of the charge divided by the potential difference."
+    ],
+    correct: 2,
+    explanation: "Capacitance is defined as C = Q / ΔV, meaning the charge stored per unit potential difference. This is the fundamental definition — a larger capacitance means more charge can be stored for the same voltage."
+  },
+  {
+    id: 3,
+    question: "Which of the following is a characteristic of polar dielectrics, such as pure water?",
+    options: [
+      "Their molecules gain temporary bipolar electric moments by electric induction.",
+      "The distance between the centers of positive and negative charges is not constant.",
+      "Their molecules possess permanent electric dipole moments.",
+      "They do not affect the net electric field when inserted between capacitor plates."
+    ],
+    correct: 2,
+    explanation: "Polar dielectrics (e.g., water, HCl) have molecules with a permanent separation between their positive and negative charge centers even without an external field. This permanent dipole moment is their defining characteristic. Non-polar dielectrics only develop induced dipoles when an external field is applied."
+  },
+  {
+    id: 4,
+    question: "When a dielectric is inserted between the plates of a charged capacitor disconnected from the battery, the net electric field between the plates:",
+    options: [
+      "Increases by a factor of the dielectric constant k.",
+      "Decreases by a factor of the dielectric constant (E_k = E/k).",
+      "Remains constant because the charge is constant.",
+      "Becomes zero immediately."
+    ],
+    correct: 1,
+    explanation: "When the capacitor is isolated (disconnected), the charge Q remains fixed. The dielectric's polarized molecules create an induced field E_d opposing the original field E. The net field becomes E_k = E − E_d = E/k. Since k > 1, the field is reduced, not constant."
+  },
+  {
+    id: 5,
+    question: "The maximum electric field that a dielectric material can withstand before electrical breakdown is called:",
+    options: [
+      "Dielectric constant",
+      "Electric potential",
+      "Capacitance limit",
+      "Dielectric strength"
+    ],
+    correct: 3,
+    explanation: "Dielectric strength (measured in V/m or kV/mm) is the maximum electric field intensity the material can tolerate before its insulating properties fail and current flows through it. It is distinct from the dielectric constant k, which measures the reduction in field/capacitance ratio."
+  },
+  {
+    id: 6,
+    question: "According to the factors affecting the capacitance of a parallel-plate capacitor, the capacitance is:",
+    options: [
+      "Directly proportional to the distance between the plates.",
+      "Inversely proportional to the surface area of the opposite plates.",
+      "Directly proportional to the surface area and inversely proportional to the distance between the plates.",
+      "Independent of the type of dielectric medium."
+    ],
+    correct: 2,
+    explanation: "From the formula C = ε₀A/d (or C = kε₀A/d with a dielectric), capacitance increases as the plate area A increases (more charge can accumulate) and decreases as separation d increases (field weakens for same charge). Both factors and the medium type all affect C."
+  },
+  {
+    id: 7,
+    question: "A parallel-plate capacitor has a capacitance of C. If the distance between its plates is reduced to 1/3 of its original value, the new capacitance becomes:",
+    options: ["1/3 C", "1/9 C", "3C", "9C"],
+    correct: 2,
+    explanation: "Since C = ε₀A/d, capacitance is inversely proportional to d. If d becomes d/3, then C_new = ε₀A/(d/3) = 3·(ε₀A/d) = 3C. Reducing plate separation by a factor of 3 triples the capacitance."
+  },
+  {
+    id: 8,
+    question: "What is the primary purpose of connecting a group of capacitors in series?",
+    options: [
+      "To increase the equivalent capacitance of the group.",
+      "To obtain a larger potential difference across the group that a single capacitor might not withstand.",
+      "To increase the total surface area of the parallel plates.",
+      "To increase the total stored charge in the circuit."
+    ],
+    correct: 1,
+    explanation: "In series, the total voltage distributes across all capacitors: ΔV_total = ΔV₁ + ΔV₂ + … This allows the combination to handle a higher voltage than any single capacitor alone — even though the equivalent capacitance decreases. This is the primary practical advantage of series connection."
+  },
+  {
+    id: 9,
+    question: "In a parallel combination of capacitors, which physical quantity remains constant for all capacitors?",
+    options: [
+      "The stored charge (Q)",
+      "The equivalent capacitance (C_eq)",
+      "The potential difference (ΔV)",
+      "The stored electrical energy (PE)"
+    ],
+    correct: 2,
+    explanation: "In a parallel circuit, all components share the same two nodes, so the potential difference across each capacitor is identical: ΔV₁ = ΔV₂ = ΔV₃ = ΔV_total. However, each capacitor stores a different charge proportional to its own capacitance (Q = CΔV)."
+  },
+  {
+    id: 10,
+    question: "Three capacitors (6 µF, 9 µF, 18 µF) are connected in series. The equivalent capacitance is:",
+    options: ["33 µF", "3 µF", "12 µF", "18 µF"],
+    correct: 1,
+    explanation: "1/C_eq = 1/6 + 1/9 + 1/18 = 3/18 + 2/18 + 1/18 = 6/18 = 1/3. Therefore C_eq = 3 µF. In series, the equivalent is always less than the smallest individual capacitance."
+  },
+  {
+    id: 11,
+    question: "A 2 µF capacitor is charged by a 5000 V potential difference. The energy stored in its electric field is:",
+    options: ["10 J", "25 J", "50 J", "100 J"],
+    correct: 1,
+    explanation: "PE = ½CΔV² = ½ × 2×10⁻⁶ × (5000)² = ½ × 2×10⁻⁶ × 25×10⁶ = ½ × 50 = 25 J. The factor of ½ arises because energy accumulates gradually as the capacitor charges, not all at once."
+  },
+  {
+    id: 12,
+    question: "If the potential difference across a capacitor with constant capacitance is doubled, the stored electrical energy:",
+    options: [
+      "Increases to twice its original value.",
+      "Decreases to half its original value.",
+      "Increases to four times its original value.",
+      "Remains constant."
+    ],
+    correct: 2,
+    explanation: "PE = ½CΔV². Since energy is proportional to ΔV², doubling ΔV gives PE_new = ½C(2ΔV)² = ½C·4ΔV² = 4·(½CΔV²) = 4·PE. Energy scales as the square of voltage."
+  },
+  {
+    id: 13,
+    question: "Which practical application relies on a capacitor whose capacitance changes due to variations in plate separation caused by mechanical vibrations?",
+    options: [
+      "The flash lamp in a camera",
+      "The computer keyboard",
+      "The defibrillator (medical device)",
+      "The microphone"
+    ],
+    correct: 3,
+    explanation: "In a condenser microphone, sound waves cause mechanical vibrations of a thin diaphragm (one plate), changing the plate separation d. Since C = ε₀A/d, capacitance varies with d, and this variation is converted into an electrical signal representing the sound."
+  },
+  {
+    id: 14,
+    question: "In a DC circuit with a battery, resistor, and capacitor (RC circuit), the capacitor acts as an open switch after being fully charged because:",
+    options: [
+      "The current in the circuit reaches its maximum value.",
+      "The potential difference across the capacitor becomes zero.",
+      "The potential difference across the capacitor equals the battery voltage, making the current zero.",
+      "The capacitor discharges its energy instantly into the resistor."
+    ],
+    correct: 2,
+    explanation: "When fully charged, V_capacitor = V_battery. By Kirchhoff's voltage law, no net voltage drives the current: V_battery − V_capacitor = IR = 0, so I = 0. The capacitor opposes any further change, effectively acting as an open circuit for DC."
+  },
+  {
+    id: 15,
+    question: "The Farad (F) is the unit of capacitance. Which of the following is NOT an equivalent unit?",
+    options: [
+      "Coulomb / Volt",
+      "Coulomb² / Joule",
+      "Joule / Volt²",
+      "Coulomb · Volt²"
+    ],
+    correct: 3,
+    explanation: "C = Q/ΔV → F = C/V. Since PE = Q²/(2C), then C = Q²/(2PE) → F = C²/J. Since PE = ½CΔV², then C = 2PE/ΔV² → F = J/V². But 'Coulomb·Volt²' has no valid dimensional equivalence to Farads — it is the incorrect option."
+  },
+  {
+    id: 16,
+    question: "A charged capacitor is disconnected from the battery, then the plates are moved slightly further apart. The electric field between the plates:",
+    options: [
+      "Increases, and the stored charge increases.",
+      "Decreases, and the stored charge decreases.",
+      "Remains constant, and the stored charge remains constant.",
+      "Increases, and the potential difference decreases."
+    ],
+    correct: 2,
+    explanation: "With the capacitor isolated, charge Q is fixed (charge conservation). The electric field E = σ/ε₀ = Q/(ε₀A) depends only on Q and A, neither of which changes when plates move apart. Therefore E remains constant. Note: ΔV = Ed increases, and C decreases, but E stays the same."
+  },
+  {
+    id: 17,
+    question: "The capacitor in a defibrillator is primarily used to:",
+    options: [
+      "Convert mechanical sound waves into electrical signals.",
+      "Store a huge amount of electrical energy and discharge it in a very short time to stimulate the heart.",
+      "Recognize input commands by changing its capacitance when pressed.",
+      "Provide continuous, low-voltage DC to the patient's body."
+    ],
+    correct: 1,
+    explanation: "A defibrillator uses a large capacitor (charged to several kV) to deliver a precisely timed, high-energy pulse (~200–400 J) in milliseconds. This brief, intense current restores normal cardiac rhythm by simultaneously depolarizing all heart muscle cells."
+  },
+  {
+    id: 18,
+    question: "When non-polar dielectrics (like glass) are inserted between plates of a charged capacitor, the electric field will:",
+    options: [
+      "Minimally displace the centers of positive and negative charges, creating temporary dipoles.",
+      "Align already existing permanent dipoles opposite to the external field.",
+      "Cause a massive electrical breakdown instantly.",
+      "Increase the potential difference across the plates."
+    ],
+    correct: 0,
+    explanation: "In non-polar dielectrics, molecules have no permanent dipole. When an external field is applied, it displaces the electron cloud slightly from the positive nucleus, creating induced (temporary) dipoles. These induced dipoles partially oppose the external field, reducing the net field inside."
+  },
+  {
+    id: 19,
+    question: "A 10 pF capacitor is charged by 12 V then disconnected. A dielectric (k = 6) is inserted. The new potential difference ΔV_k is:",
+    options: ["72 V", "12 V", "2 V", "60 V"],
+    correct: 2,
+    explanation: "When isolated, Q = C·ΔV = 10×10⁻¹² × 12 = 120 pC is fixed. After inserting the dielectric: C_k = kC = 6×10 = 60 pF. New voltage: ΔV_k = Q/C_k = 120/60 = 2 V. The voltage drops by a factor of k because charge is conserved but capacitance multiplied by k."
+  },
+  {
+    id: 20,
+    question: "In touchscreens of modern smartphones, the fundamental principle for detecting touch location relies on:",
+    options: [
+      "A sudden increase in potential difference causing a spark.",
+      "A change in the capacitance of the capacitor at the touched spot.",
+      "The generation of a permanent magnetic field by the finger.",
+      "Discharging a high-voltage pulse into the screen."
+    ],
+    correct: 1,
+    explanation: "Capacitive touchscreens have a grid of transparent capacitors. The human finger, being a conductor, adds its own capacitance to the touch location, altering the local capacitance value. The controller detects which grid point changed capacitance and maps it to screen coordinates."
+  },
+  {
+    id: 21,
+    question: "A capacitor remains connected to a battery while a dielectric slab (k > 1) is inserted. What happens to charge Q and potential difference ΔV?",
+    options: [
+      "Q remains constant, ΔV decreases.",
+      "Q increases, ΔV remains constant.",
+      "Both Q and ΔV decrease.",
+      "Both Q and ΔV increase."
+    ],
+    correct: 1,
+    explanation: "When connected to the battery, ΔV is fixed by the battery. Inserting the dielectric increases capacitance: C_k = kC. Since Q = C_k·ΔV and ΔV is constant, Q increases by a factor of k. More charge flows from the battery to the capacitor."
+  },
+  {
+    id: 22,
+    question: "Two capacitors (C₁ = 4 µF and C₂ = 8 µF) are connected in parallel. Given a total charge supplied, the relation between their stored charges is:",
+    options: ["Q₁ = 2Q₂", "Q₁ = Q₂", "Q₂ = 2Q₁", "Q₂ = 4Q₁"],
+    correct: 2,
+    explanation: "In parallel, ΔV is the same. Q₁ = C₁ΔV = 4ΔV and Q₂ = C₂ΔV = 8ΔV. Therefore Q₂ = 2Q₁. Charge distributes in proportion to capacitance, so the larger capacitor stores twice the charge of the smaller one."
+  },
+  {
+    id: 23,
+    question: "C₁ = 3 µF and C₂ = 6 µF are in series across 12 V. The potential difference across C₁ is:",
+    options: ["4 V", "8 V", "6 V", "12 V"],
+    correct: 1,
+    explanation: "In series: C_eq = (3×6)/(3+6) = 2 µF. Q = C_eq × ΔV = 2×12 = 24 µC (same on each capacitor). ΔV₁ = Q/C₁ = 24/3 = 8 V. Alternatively, voltage divides inversely to capacitance: ΔV₁/ΔV₂ = C₂/C₁ = 2, so ΔV₁ = 8 V and ΔV₂ = 4 V."
+  },
+  {
+    id: 24,
+    question: "The electric field E between the plates of a parallel-plate capacitor is given by:",
+    options: ["E = ΔV · d", "E = ΔV / d", "E = Q / d", "E = C / ΔV"],
+    correct: 1,
+    explanation: "Between two parallel plates, the electric field is uniform. The potential difference is related to the field by ΔV = E·d (work per unit charge over distance d). Rearranging: E = ΔV/d. Units: V/m, confirming this as field strength."
+  },
+  {
+    id: 25,
+    question: "When both plates of a fully charged capacitor are connected to each other by a wire, the net charge becomes:",
+    options: [
+      "It doubles instantly.",
+      "It remains the same but converts to thermal energy.",
+      "It becomes zero because positive and negative charges neutralize each other.",
+      "It flows completely into the surrounding air as a spark."
+    ],
+    correct: 2,
+    explanation: "The +Q and −Q charges on opposite plates are equal and opposite. When connected by a wire, they neutralize through the wire (current flows briefly). Net charge = +Q + (−Q) = 0. Note: the energy stored is dissipated as heat and possibly light/sound in the wire."
+  },
+  {
+    id: 26,
+    question: "In non-polar dielectrics, when an external electric field is applied:",
+    options: [
+      "Permanent dipoles are rotated to line up with the field.",
+      "The centers of positive and negative charges are displaced slightly, creating temporary dipoles.",
+      "The material turns into a perfect electric conductor.",
+      "The capacitance decreases due to high field intensity."
+    ],
+    correct: 1,
+    explanation: "Non-polar molecules (e.g., N₂, glass) have coincident positive and negative charge centers. An external field displaces these centers: positive charges shift in the field direction and negative charges shift opposite. This creates induced temporary dipoles aligned opposite to the external field."
+  },
+  {
+    id: 27,
+    question: "A capacitor has capacitance C. If plate area is doubled (2A) and separation is halved (d/2), the new capacitance is:",
+    options: ["C", "2C", "4C", "C/4"],
+    correct: 2,
+    explanation: "C = ε₀A/d. New capacitance: C_new = ε₀(2A)/(d/2) = ε₀ × 2A × 2/d = 4ε₀A/d = 4C. Doubling area doubles C, and halving distance doubles C again, giving a combined factor of 4."
+  },
+  {
+    id: 28,
+    question: "The induced electric field E_d inside a dielectric placed in an external field E is directed:",
+    options: [
+      "In the same direction as the external field E.",
+      "Perpendicular to the external field E.",
+      "Opposite to the direction of the external field E.",
+      "Rotating continuously inside the material."
+    ],
+    correct: 2,
+    explanation: "The polarized dielectric develops surface charges opposite to the original charges — negative surface charges near the positive plate and positive near the negative plate. These bound charges produce an induced field E_d that opposes the original external field E, resulting in E_net = E − E_d = E/k."
+  },
+  {
+    id: 29,
+    question: "A capacitor is disconnected then a dielectric (k = 4) is inserted. The stored energy PE_k changes to:",
+    options: ["4 PE", "16 PE", "PE/4", "It remains unchanged."],
+    correct: 2,
+    explanation: "Isolated capacitor: Q is constant. PE = Q²/(2C). After insertion: C_k = 4C, so PE_k = Q²/(2·4C) = Q²/(8C) = PE/4. Energy decreases! The 'lost' energy is used to polarize the dielectric — it does work pulling the dielectric slab in (if you release it, it accelerates inward)."
+  },
+  {
+    id: 30,
+    question: "Which equation correctly calculates the stored electric potential energy PE in a capacitor?",
+    options: [
+      "PE = ½ Q · ΔV",
+      "PE = ½ C² / ΔV",
+      "PE = ½ Q² · C",
+      "PE = Q · ΔV²"
+    ],
+    correct: 0,
+    explanation: "PE = ½QΔV is the fundamental energy formula (also written as ½CΔV² or Q²/2C). All three are equivalent, derived from integrating V·dq as charge accumulates. The factor ½ reflects that the average voltage during charging is half the final voltage."
+  },
+  {
+    id: 31,
+    question: "In an RC charging circuit, at the exact instant the circuit is closed (t = 0), the current is:",
+    options: [
+      "Zero",
+      "At its maximum value I = ΔV_battery / R",
+      "Half of its maximum value",
+      "Equal to the net charge divided by capacitance"
+    ],
+    correct: 1,
+    explanation: "At t = 0, the capacitor is uncharged, so V_capacitor = 0. The full battery voltage drives current through the resistor: I₀ = ΔV_battery / R. As the capacitor charges, it opposes the current, which then decays exponentially toward zero."
+  },
+  {
+    id: 32,
+    question: "In an RC circuit, when the capacitor becomes fully charged, current drops to zero because:",
+    options: [
+      "The resistor breaks down.",
+      "The battery is completely drained of its voltage.",
+      "The potential difference across the capacitor equals the battery voltage, opposing the current flow.",
+      "The capacitor becomes a short circuit."
+    ],
+    correct: 2,
+    explanation: "By KVL, V_battery = V_R + V_C = IR + V_C. When fully charged, V_C = V_battery, so IR = 0, meaning I = 0. The capacitor voltage exactly opposes the battery, creating a net driving EMF of zero. No current can flow in a DC steady state through a capacitor."
+  },
+  {
+    id: 33,
+    question: "What happens to equivalent capacitance when capacitors are connected in parallel?",
+    options: [
+      "It decreases because the distance between plates increases.",
+      "It increases due to the increase in the effective surface area of the plates.",
+      "It remains constant but the breakdown voltage increases.",
+      "It becomes smaller than the smallest capacitance in the group."
+    ],
+    correct: 1,
+    explanation: "Parallel capacitors share the same voltage and act as one larger capacitor. The effective plate area is the sum of individual areas: A_eff = A₁ + A₂ + A₃ + … This is why C_eq = C₁ + C₂ + … always exceeds any individual capacitance."
+  },
+  {
+    id: 34,
+    question: "Two capacitors (C₁ = 6 µF and C₂ = 3 µF) are in series. If total charge is 120 µC, the charge on each is:",
+    options: [
+      "Q₁ = 80 µC and Q₂ = 40 µC",
+      "Q₁ = 40 µC and Q₂ = 80 µC",
+      "Q₁ = 120 µC and Q₂ = 120 µC",
+      "Q₁ = 60 µC and Q₂ = 60 µC"
+    ],
+    correct: 2,
+    explanation: "This is a key principle: in series, each capacitor stores the SAME charge as the equivalent capacitor — there is no path for charge to leave from or arrive at the inner plates independently. Q₁ = Q₂ = Q_total = 120 µC. (Note: 120 µC refers to the charge on one plate of each capacitor.)"
+  },
+  {
+    id: 35,
+    question: "The dielectric constant (k) of a material is defined as the ratio of:",
+    options: [
+      "Dielectric strength to the electric field.",
+      "Capacitance with the dielectric (C_k) to the capacitance with vacuum or air (C).",
+      "Stored energy to the total net charge.",
+      "Distance between plates to the surface area."
+    ],
+    correct: 1,
+    explanation: "k = C_k/C (dimensionless). It measures how much more charge a capacitor can store with the dielectric versus vacuum for the same voltage. For vacuum, k = 1; for glass, k ≈ 5–10; for water, k ≈ 80. Also k = E/E_k (ratio of original to reduced field)."
+  },
+  {
+    id: 36,
+    question: "When a key on a computer keyboard is pressed down, which change occurs in its capacitor system?",
+    options: [
+      "The surface area increases, changing the capacitance.",
+      "The dielectric constant increases.",
+      "The distance between the plates decreases, which increases the capacitance.",
+      "The voltage drops to zero instantly."
+    ],
+    correct: 2,
+    explanation: "Each key sits above a small capacitor. Pressing reduces the separation d between the fixed bottom plate and the movable top plate. Since C = ε₀A/d, reducing d increases C. This capacitance change is detected electronically as a keypress signal."
+  },
+  {
+    id: 37,
+    question: "The permittivity of free space (ε₀) has a constant value of:",
+    options: [
+      "9 × 10⁹ N·m²/C²",
+      "8.85 × 10⁻¹² C²/(N·m²)",
+      "1.6 × 10⁻¹⁹ C",
+      "3 × 10⁸ m/s"
+    ],
+    correct: 1,
+    explanation: "ε₀ = 8.85 × 10⁻¹² C²/(N·m²) or equivalently F/m. It appears in Coulomb's law (k = 1/4πε₀), in the capacitance formula C = ε₀A/d, and in Maxwell's equations. The value 9×10⁹ is Coulomb's constant k, not ε₀."
+  },
+  {
+    id: 38,
+    question: "Three capacitors (C₁ = 2 µF, C₂ = 4 µF, C₃ = 6 µF) are connected in parallel. The equivalent capacitance is:",
+    options: ["1.09 µF", "12 µF", "6 µF", "0.5 µF"],
+    correct: 1,
+    explanation: "In parallel: C_eq = C₁ + C₂ + C₃ = 2 + 4 + 6 = 12 µF. All capacitors share the same voltage. 1.09 µF would be the result if they were in series."
+  },
+  {
+    id: 39,
+    question: "A discharged capacitor in series with a lamp, resistor, and battery: during charging, the lamp brightness:",
+    options: [
+      "Remains constantly bright until the battery dies.",
+      "Is dim at first, then becomes brighter.",
+      "Is at maximum brightness initially, then gradually dims until it goes out.",
+      "Flashes repeatedly at a constant frequency."
+    ],
+    correct: 2,
+    explanation: "At t = 0, the capacitor acts like a short circuit (zero voltage drop), so maximum current flows → maximum brightness. As the capacitor charges, it builds up opposing voltage, reducing current exponentially. Eventually current → 0 and the lamp goes out. Brightness mirrors the decaying current curve."
+  },
+  {
+    id: 40,
+    question: "An isolated capacitor has a dielectric (k = 5) inserted between its plates. The electric potential difference ΔV_k will:",
+    options: [
+      "Increase by 5 times.",
+      "Decrease to 1/5 of its original value.",
+      "Double its value.",
+      "Stay completely the same."
+    ],
+    correct: 1,
+    explanation: "Isolated → Q constant. C_k = kC = 5C. ΔV_k = Q/C_k = Q/(5C) = ΔV/5. Potential difference is inversely proportional to k when charge is fixed. This is consistent with E_k = E/k and ΔV = E·d → ΔV_k = E_k·d = Ed/k = ΔV/k."
+  },
+  {
+    id: 41,
+    question: "A 10 pF capacitor charged by 12 V is disconnected. A dielectric slab (k = 6) is inserted. ΔV_k becomes:",
+    options: ["72 V", "2 V", "6 V", "12 V"],
+    correct: 1,
+    explanation: "Q = CΔV = 10 pF × 12 V = 120 pC (fixed since disconnected). C_k = 6 × 10 = 60 pF. ΔV_k = Q/C_k = 120/60 = 2 V. The voltage drops by the factor k = 6."
+  },
+  {
+    id: 42,
+    question: "When a charged capacitor is disconnected from the source and a dielectric slab is inserted, which quantity remains constant?",
+    options: [
+      "Electric potential difference",
+      "Capacitance",
+      "Stored electric charge",
+      "Stored electric energy"
+    ],
+    correct: 2,
+    explanation: "Disconnecting the capacitor creates an isolated system — no charge can flow in or out. By conservation of charge, Q remains constant. However, C increases (by factor k), ΔV decreases (by 1/k), and PE = Q²/2C decreases (by 1/k)."
+  },
+  {
+    id: 43,
+    question: "The primary technical purpose of connecting capacitors in series is to:",
+    options: [
+      "Increase the equivalent capacitance of the group.",
+      "Allow the system to withstand a larger total potential difference that a single capacitor cannot tolerate.",
+      "Increase the total charge stored at a low voltage.",
+      "Decrease the total electric field strength to zero."
+    ],
+    correct: 1,
+    explanation: "Series connection distributes the total voltage among all capacitors. A 100 V capacitor connected with another 100 V capacitor in series can together withstand 200 V. This is the key engineering advantage — voltage rating increases while charge capacity decreases."
+  },
+  {
+    id: 44,
+    question: "The physical reason for increased equivalent capacitance in parallel combination is:",
+    options: [
+      "The increase in the distance (d) between the plates.",
+      "The decrease in the dielectric constant (k).",
+      "The increase in the effective surface area (A) of the plates.",
+      "The neutralization of positive and negative charges."
+    ],
+    correct: 2,
+    explanation: "Parallel capacitors effectively act like one large capacitor with plate area equal to the sum of all individual areas: A_eff = A₁ + A₂ + … Since C = ε₀A/d, a larger effective area directly increases capacitance."
+  },
+  {
+    id: 45,
+    question: "The physical reason for decreased equivalent capacitance in series combination is:",
+    options: [
+      "The increase in the effective distance (d) between the opposite outer plates.",
+      "The reduction of the plate surface area.",
+      "The increase in the net charge of the group.",
+      "The alteration of the vacuum permittivity constant."
+    ],
+    correct: 0,
+    explanation: "Series capacitors act like one capacitor whose separation equals the sum of individual separations: d_eff = d₁ + d₂ + … Since C = ε₀A/d, increasing d_eff decreases C_eq. This is why 1/C_eq = 1/C₁ + 1/C₂ + … and C_eq is always less than the smallest capacitor."
+  },
+  {
+    id: 46,
+    question: "Dielectric strength of a material is defined as the:",
+    options: [
+      "Minimum voltage needed to charge a capacitor to 1 C.",
+      "Maximum electric field the material can withstand before electrical breakdown.",
+      "Total energy stored per unit volume.",
+      "Ratio of capacitance with dielectric to capacitance with air."
+    ],
+    correct: 1,
+    explanation: "Dielectric strength (E_max, in V/m) is the critical field value above which the insulator conducts — molecules ionize and the material 'breaks down.' For example, air has dielectric strength ~3 MV/m. Exceeding this causes sparks/arcing."
+  },
+  {
+    id: 47,
+    question: "A variable-capacitance rotary plate capacitor changes its capacitance during rotation due to change in:",
+    options: [
+      "The distance between fixed and rotatable plates.",
+      "The chemical composition of the dielectric material.",
+      "The effective facing surface area of the plates.",
+      "The type of metal used in the plates."
+    ],
+    correct: 2,
+    explanation: "In a rotary variable capacitor (like in old radios), a set of movable plates rotates to overlap more or less with the fixed plates. The overlapping (facing) area A changes with rotation angle. Since C = ε₀kA/d, changing A varies capacitance — allowing frequency tuning."
+  },
+  {
+    id: 48,
+    question: "In non-polar dielectrics in an external field, surface charges on opposite faces of the slab:",
+    options: [
+      "Completely eliminate the external field, making the net field inside zero.",
+      "Generate an induced field E_d that opposes E, reducing the net field.",
+      "Generate a field in the same direction, doubling the net field.",
+      "Cause a permanent distortion that turns the material into a conductor."
+    ],
+    correct: 1,
+    explanation: "Bound surface charges appear on the faces: negative on the side facing the positive plate, positive facing the negative plate. These create E_d opposite to E. Net field: E_k = E − E_d = E/k. Since k > 1, the field is reduced but not eliminated (that would require a conductor, not a dielectric)."
+  },
+  {
+    id: 49,
+    question: "An electrolytic capacitor is structurally distinguished by the fact that:",
+    options: [
+      "It can only operate with high-frequency AC.",
+      "Its terminals are marked with positive and negative signs to ensure correct polarity connection.",
+      "It has a very small capacitance and cannot store significant charge.",
+      "It uses pure water as its primary dielectric medium."
+    ],
+    correct: 1,
+    explanation: "Electrolytic capacitors use an oxide layer as dielectric (very thin → high capacitance) and a liquid electrolyte as one plate. They are polarized — must be connected with correct polarity (marked + and −). Reversed polarity destroys the oxide layer and can cause explosion."
+  },
+  {
+    id: 50,
+    question: "The equation for capacitance of a parallel-plate capacitor with dielectric is:",
+    options: [
+      "C_k = ε₀·d / (k·A)",
+      "C_k = k·ε₀·(A/d)",
+      "C_k = k·d / (ε₀·A)",
+      "C_k = ε₀·A / (d·k)"
+    ],
+    correct: 1,
+    explanation: "C_k = kε₀A/d, where k is the dielectric constant (dimensionless), ε₀ = 8.85×10⁻¹² F/m, A is plate area (m²), and d is separation (m). The dielectric multiplies the vacuum capacitance by factor k because the polarized material effectively stores more charge for the same voltage."
+  },
+  {
+    id: 51,
+    question: "Although a capacitor stores charge +Q on one plate and −Q on the other, the total net charge is always:",
+    options: ["+2Q", "Q/2", "Zero", "Q²"],
+    correct: 2,
+    explanation: "+Q on one plate and −Q on the other: net = +Q + (−Q) = 0. A capacitor does not create charge — it only separates and redistributes existing charge from one plate to the other. The net charge on the device as a whole is always zero."
+  },
+  {
+    id: 52,
+    question: "A capacitor stays connected to a battery while a dielectric slab (k > 1) is inserted. The electric field E between the plates will:",
+    options: [
+      "Decrease by a factor of k.",
+      "Increase by a factor of k.",
+      "Remain unchanged, provided the distance d is constant.",
+      "Turn into an irregular field at all points."
+    ],
+    correct: 2,
+    explanation: "With the battery connected, ΔV is fixed. Since E = ΔV/d, and neither ΔV nor d changes, E remains constant. The capacitance and stored charge both increase by k, but the field is maintained by the constant voltage source."
+  },
+  {
+    id: 53,
+    question: "In a parallel combination of capacitors, which property is identical across all individual components?",
+    options: [
+      "Stored electric charge (Q)",
+      "Electric potential difference (ΔV)",
+      "Stored potential energy (PE)",
+      "Dielectric constant (k)"
+    ],
+    correct: 1,
+    explanation: "Parallel connection means all capacitors share the same two nodes → same ΔV across each. The stored charges differ: Q_i = C_i·ΔV. The energies also differ: PE_i = ½C_i·ΔV². Only ΔV is uniform throughout a parallel combination."
+  },
+  {
+    id: 54,
+    question: "In a series combination of capacitors, which property is identical across all individual components?",
+    options: [
+      "Electric potential difference (ΔV)",
+      "Electric field strength (E)",
+      "Stored electric charge (Q)",
+      "Capacitance (C)"
+    ],
+    correct: 2,
+    explanation: "In series, the same charge Q flows from the battery and deposits on the first capacitor. By induction, the inner plates of successive capacitors acquire equal charges. Result: Q₁ = Q₂ = Q₃ = Q_eq. Voltages differ: ΔV_i = Q/C_i."
+  },
+  {
+    id: 55,
+    question: "Two capacitors C₁ = 3 µF and C₂ = 6 µF in series. Their equivalent capacitance C_eq is:",
+    options: ["9 µF", "2 µF", "18 µF", "0.5 µF"],
+    correct: 1,
+    explanation: "1/C_eq = 1/3 + 1/6 = 2/6 + 1/6 = 3/6 = 1/2. Therefore C_eq = 2 µF. In series, C_eq < min(C₁,C₂) = 3 µF, confirming the answer. Alternatively: C_eq = C₁C₂/(C₁+C₂) = (3×6)/(3+6) = 18/9 = 2 µF."
+  },
+  {
+    id: 56,
+    question: "Two capacitors C₁ = 3 µF and C₂ = 6 µF in parallel. Their equivalent capacitance C_eq is:",
+    options: ["9 µF", "2 µF", "4.5 µF", "12 µF"],
+    correct: 0,
+    explanation: "In parallel: C_eq = C₁ + C₂ = 3 + 6 = 9 µF. This is always greater than either individual capacitance. The 4.5 µF would be their average (meaningless here), and 2 µF is their series equivalent."
+  },
+  {
+    id: 57,
+    question: "A paper capacitor is widely used in electrical devices because of its:",
+    options: [
+      "High weight and high tolerance to extreme heat.",
+      "Small size and large effective plate surface area.",
+      "Fixed capacitance that cannot be altered by dielectrics.",
+      "Use of polar molecules like water inside the paper layers."
+    ],
+    correct: 1,
+    explanation: "Paper capacitors use long thin metal foil strips separated by waxed paper, rolled into a compact cylinder. This rolling technique gives a very large effective plate area (A) in a small volume. The waxed paper also acts as the dielectric, keeping plates separated and increasing k."
+  },
+  {
+    id: 58,
+    question: "When a dielectric is inserted between plates of an isolated charged capacitor, the voltmeter reading decreases. This proves capacitance:",
+    options: [
+      "Decreases as the voltage decreases.",
+      "Increases because C is inversely proportional to potential difference for constant charge.",
+      "Drops to absolute zero.",
+      "Is independent of any insulating material."
+    ],
+    correct: 1,
+    explanation: "Q is constant (isolated). ΔV decreases → from C = Q/ΔV, if Q is fixed and ΔV decreases, then C must have increased. This experimentally verifies C_k = kC > C. The decrease in voltage is direct evidence of increased capacitance."
+  },
+  {
+    id: 59,
+    question: "In a mixed network where C₁ and C₂ are in series, connected in parallel with C₃, the correct analysis is:",
+    options: [
+      "Add all three capacitances directly: C₁ + C₂ + C₃.",
+      "Find the reciprocal sum of all three capacitors.",
+      "First calculate the series equivalent of C₁ and C₂, then add it to C₃ in parallel.",
+      "First add C₂ and C₃ in parallel, then combine with C₁ in series."
+    ],
+    correct: 2,
+    explanation: "Circuit analysis requires respecting which capacitors are actually in series with each other and which are in parallel. C₁ and C₂ share the same current path (series), giving C_series = C₁C₂/(C₁+C₂). This combination is then in parallel with C₃: C_eq = C_series + C₃."
+  },
+  {
+    id: 60,
+    question: "The medical defibrillator capacitor functions to:",
+    options: [
+      "Store a small electrical voltage over several days.",
+      "Discharge a massive amount of stored electrical energy into the patient's chest in a very brief time.",
+      "Convert AC into DC inside the heart muscle.",
+      "Monitor the continuous electrostatic charge of the surroundings."
+    ],
+    correct: 1,
+    explanation: "The defibrillator charges its capacitor (PE ~ 200–400 J) and then delivers this energy in ~ 5–10 milliseconds across the chest, producing a current of ~ 20–40 A. This momentary high current synchronizes all cardiac cells and allows the natural pacemaker to resume control."
+  },
+  {
+    id: 61,
+    question: "C₁ = 6 µF and C₂ = 3 µF in series, connected in parallel with C₃ = 4 µF. Total potential difference = 20 V. The total stored charge Q_total is:",
+    options: ["240 µC", "120 µC", "180 µC", "60 µC"],
+    correct: 1,
+    explanation: "Series C₁₂ = (6×3)/(6+3) = 18/9 = 2 µF. Parallel with C₃: C_eq = 2 + 4 = 6 µF. Q_total = C_eq × ΔV = 6 × 20 = 120 µC."
+  },
+  {
+    id: 62,
+    question: "C₁ = 4 µF and C₂ = 8 µF in parallel across 12 V battery, then disconnected. A dielectric is inserted into C₁ and ΔV drops to 6 V. The dielectric constant k is:",
+    options: ["2", "3", "4", "5"],
+    correct: 2,
+    explanation: "Initial charge: Q_total = (4+8)×12 = 144 µC. After insertion with ΔV = 6 V: Q = C₁k × 6 + C₂ × 6 = 24k + 48. Setting equal (charge conserved): 24k + 48 = 144 → 24k = 96 → k = 4."
+  },
+  {
+    id: 63,
+    question: "A lamp (r = 10 Ω) and resistor (R = 20 Ω) in series with a 12 V battery. A capacitor is also in series. The maximum charging current at t = 0 is:",
+    options: ["0.4 A", "0.6 A", "1.2 A", "Zero"],
+    correct: 0,
+    explanation: "At t = 0, the capacitor voltage = 0 (fully uncharged), so it acts as a wire. Total resistance = r + R = 10 + 20 = 30 Ω. I₀ = V/R_total = 12/30 = 0.4 A."
+  },
+  {
+    id: 64,
+    question: "In the same DC circuit (lamp r = 10 Ω, resistor R = 20 Ω, 12 V battery), a capacitor is connected in parallel with the lamp. After the capacitor is fully charged, the potential difference across it is:",
+    options: ["12 V", "8 V", "4 V", "Zero"],
+    correct: 2,
+    explanation: "When fully charged, no current flows through the capacitor branch. All current flows through R and r in series. By voltage divider: V_r = 12 × 10/(10+20) = 4 V. V_R = 12 × 20/30 = 8 V. The capacitor (in parallel with r) has V_capacitor = V_r = 4 V."
+  },
+  {
+    id: 65,
+    question: "A 4 µF capacitor is charged across 200 V. The electrical potential energy stored is:",
+    options: ["0.08 J", "0.16 J", "0.04 J", "0.80 J"],
+    correct: 0,
+    explanation: "PE = ½CΔV² = ½ × 4×10⁻⁶ × (200)² = ½ × 4×10⁻⁶ × 40000 = ½ × 0.16 = 0.08 J."
+  },
+  {
+    id: 66,
+    question: "A charged capacitor is isolated, then plate separation d is doubled. The electric field E between the plates:",
+    options: ["Doubles", "Is reduced to half", "Remains constant", "Quadruples"],
+    correct: 2,
+    explanation: "E = σ/ε₀ = Q/(ε₀A). When isolated, Q and A are constant. Therefore E = Q/(ε₀A) is independent of d. E remains unchanged! Note: ΔV = E·d doubles because d doubled, and C = ε₀A/d halves, but E itself stays constant."
+  },
+  {
+    id: 67,
+    question: "A capacitor stays connected to a constant voltage battery. If plate area A is doubled, the stored electric potential energy PE:",
+    options: ["Remains unchanged", "Is reduced to half", "Doubles", "Quadruples"],
+    correct: 2,
+    explanation: "Connected to battery → ΔV constant. C_new = ε₀(2A)/d = 2C. PE_new = ½C_new·ΔV² = ½(2C)ΔV² = 2·(½CΔV²) = 2PE. Doubling the area doubles the capacitance, and with constant voltage, energy doubles (battery provides extra charge and energy)."
+  },
+  {
+    id: 68,
+    question: "Two identical capacitors are fully charged to Q each, disconnected, then connected in parallel with opposite-sign plates joined. The net final charge on each is:",
+    options: ["Q", "2Q", "Zero", "Q/2"],
+    correct: 2,
+    explanation: "Plate polarities: Cap 1 has (+Q, −Q); Cap 2 has (+Q, −Q). Connecting with opposite signs means +Q plate of Cap 1 connects to +Q of Cap 2? No — 'opposite charge signs joined' means +Q of one connects to −Q of the other. Net charge = +Q + (−Q) = 0. Charges cancel completely."
+  },
+  {
+    id: 69,
+    question: "A capacitor discharges PE = 4 J through a wire in 20 µs. The average electric power P is:",
+    options: ["200 W", "20,000 W", "200 kW", "80 kW"],
+    correct: 2,
+    explanation: "P = PE/t = 4 J / (20×10⁻⁶ s) = 4/(20×10⁻⁶) = 200,000 W = 200 kW. This illustrates why capacitors are useful in pulse power applications — they store moderate energy but deliver it at enormous power by discharging very quickly."
+  },
+  {
+    id: 70,
+    question: "C₁ = 12 µF and C₂ = 6 µF in series across 12 V battery. A dielectric k = 2 is inserted into C₂ while connected. The new C_eq becomes:",
+    options: ["4 µF", "6 µF", "8 µF", "12 µF"],
+    correct: 1,
+    explanation: "C₂k = 2×6 = 12 µF. New C_eq (series) = C₁·C₂k / (C₁+C₂k) = (12×12)/(12+12) = 144/24 = 6 µF."
+  },
+  {
+    id: 71,
+    question: "In the scenario of Question 70, the new total charge Q_total,k supplied by the battery is:",
+    options: ["48 µC", "72 µC", "96 µC", "144 µC"],
+    correct: 1,
+    explanation: "From Q70: C_eq,k = 6 µF. Q_total = C_eq,k × ΔV = 6 µF × 12 V = 72 µC. (Before insertion: C_eq = (12×6)/(12+6) = 4 µF, Q = 48 µC. Inserting the dielectric increased C_eq from 4 to 6 µF, so the battery must supply extra 24 µC.)"
+  },
+  {
+    id: 72,
+    question: "The SI unit for expressing Dielectric Strength of an insulating material is:",
+    options: ["Volt · meter", "Volt / meter", "Farad / meter", "Coulomb / Volt"],
+    correct: 1,
+    explanation: "Dielectric strength is a critical electric field value — the maximum E before breakdown. Since E is measured in V/m (volts per meter), dielectric strength is expressed in V/m (or equivalently N/C). Common values: air ≈ 3×10⁶ V/m, glass ≈ 9×10⁶ V/m."
+  },
+  {
+    id: 73,
+    question: "For a charged sphere: V = kQ/r. If Q is doubled and r is halved, the new potential is:",
+    options: ["Unchanged", "Two times the original", "Four times the original", "Eight times the original"],
+    correct: 2,
+    explanation: "V_new = k(2Q)/(r/2) = k × 2Q × 2/r = 4(kQ/r) = 4V. Doubling Q doubles V, and halving r doubles V again, giving a combined factor of 4."
+  },
+  {
+    id: 74,
+    question: "During charging of a capacitor in an RC circuit, the graph of charging current I versus time t shows:",
+    options: [
+      "A straight horizontal line showing constant current.",
+      "A curve that starts from zero and increases exponentially to a maximum.",
+      "A curve that starts from a maximum (I = ΔV/R) and drops exponentially to zero.",
+      "A linearly increasing straight line."
+    ],
+    correct: 2,
+    explanation: "I(t) = (V/R)·e^(−t/RC). At t = 0: I = V/R (maximum). As t → ∞: I → 0. The current decays exponentially as the growing capacitor voltage opposes the battery. The time constant τ = RC determines how quickly this decay occurs."
+  },
+  {
+    id: 75,
+    question: "During charging of a capacitor in an RC circuit, the graph of V_capacitor versus time shows:",
+    options: [
+      "An exponential decrease from maximum to zero.",
+      "An exponential increase from zero until it equals V_battery.",
+      "A constant zero value throughout the process.",
+      "A constant value equal to V_battery from t = 0."
+    ],
+    correct: 1,
+    explanation: "V_C(t) = V_battery × (1 − e^(−t/RC)). At t = 0: V_C = 0 (uncharged). As t → ∞: V_C → V_battery. The voltage rises exponentially, asymptotically approaching the battery voltage. After one time constant τ = RC, V_C ≈ 63.2% of V_battery."
+  },
+  {
+    id: 76,
+    question: "A capacitance value of 5 nF (nanofarad) is mathematically equivalent to:",
+    options: ["5 × 10⁻⁶ F", "5 × 10⁻⁹ F", "5 × 10⁻¹² F", "5 × 10⁻³ F"],
+    correct: 1,
+    explanation: "nano = 10⁻⁹. Therefore 5 nF = 5 × 10⁻⁹ F. Common prefixes: pico (p) = 10⁻¹², nano (n) = 10⁻⁹, micro (µ) = 10⁻⁶, milli (m) = 10⁻³. Most practical capacitors range from picofarads (pF) to microfarads (µF)."
+  },
+  {
+    id: 77,
+    question: "Electrical discharge occurs more rapidly from sharp, pointed ends of a charged conductor because:",
+    options: [
+      "The surface area is large, which reduces the potential.",
+      "The surface charge density becomes extremely high at sharp points, drastically increasing the local electric field.",
+      "Sharp points alter the value of the vacuum permittivity ε₀.",
+      "Sharp points prevent accumulation of any positive charges."
+    ],
+    correct: 1,
+    explanation: "At sharp points, the radius of curvature r is very small. Since E = kQ/r² and V = kQ/r, a small r produces an enormous local E field even for moderate charge. When E exceeds ~3 MV/m, air ionizes (corona discharge). Lightning rods exploit this — they discharge clouds safely through a controlled path."
+  },
+  {
+    id: 78,
+    question: "When a non-polar dielectric is introduced into an external field E, the induced field E_d satisfies:",
+    options: [
+      "It is in the same direction as E and increases the net field.",
+      "It is opposite to E and makes the net field inside equal to zero.",
+      "It is opposite to E and reduces the net electric field (E_k = E − E_d).",
+      "It is perpendicular to E."
+    ],
+    correct: 2,
+    explanation: "Induced surface charges on the dielectric create E_d opposing E. Net field: E_k = E − E_d = E/k. This reduces but does not eliminate the field (that would require k → ∞, i.e., a conductor). The dielectric partially shields the interior from the external field."
+  },
+  {
+    id: 79,
+    question: "The capacitor in a camera flash lamp functions to:",
+    options: [
+      "Generate alternating voltage continuously.",
+      "Store energy from the battery slowly and discharge it instantaneously into the flash bulb to produce bright light.",
+      "Convert sound energy into kinetic energy.",
+      "Keep the circuit current at zero during operations."
+    ],
+    correct: 1,
+    explanation: "A small battery cannot deliver the peak power needed for a bright flash. Instead, it slowly charges a capacitor over ~1–2 seconds. When triggered, the capacitor discharges all its stored energy (~1–10 J) through the xenon flash tube in microseconds, generating the intense burst of light."
+  },
+  {
+    id: 80,
+    question: "In a mixed H-bridge capacitor network (C₁=6, C₂=3, C₃=2, C₄=6, C₅=3 µF), the step-by-step circuit reduction requires:",
+    options: [
+      "Summing all values linearly as a simple parallel circuit.",
+      "Finding the series equivalents of independent branches first, then combining them in parallel.",
+      "Multiplying all capacitances by the total voltage.",
+      "Treating the network as a single isolated spherical conductor."
+    ],
+    correct: 1,
+    explanation: "Complex networks require systematic reduction: identify which pairs are in series (same current path, no junction between them), calculate their series equivalents, then identify parallel groups and sum those. Repeat until a single C_eq remains. Never add or combine without first verifying the actual circuit topology."
+  }
+];
+
+/* ═══════════════════════════════════════════════════════════
+   QUIZ ENGINE
+═══════════════════════════════════════════════════════════ */
+let sessionQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = 0;
+
+const TOTAL_QUESTIONS = 20;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  // Reset state
+  score = 0;
+  answered = 0;
+  currentIndex = 0;
+  sessionQuestions = shuffle(QUESTION_BANK).slice(0, TOTAL_QUESTIONS);
+
+  // Show quiz screen
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const q = sessionQuestions[currentIndex];
+  const num = currentIndex + 1;
+  const pct = (num / TOTAL_QUESTIONS) * 100;
+
+  // Update progress
+  document.getElementById('q-num').textContent = num;
+  document.getElementById('q-curr').textContent = num;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Update question
+  document.getElementById('question-text').textContent = q.question;
+
+  // Build options
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const labels = ['A', 'B', 'C', 'D'];
+
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.onclick = () => selectAnswer(idx);
+    btn.innerHTML = `
+      <span class="option-label">${labels[idx]}</span>
+      <span class="option-text">${opt}</span>
+    `;
+    grid.appendChild(btn);
+  });
+
+  // Hide explanation
+  const expBox = document.getElementById('explanation-box');
+  expBox.classList.remove('show');
+  expBox.style.display = 'none';
+
+  // Hide next button
+  document.getElementById('btn-next').classList.remove('visible');
+
+  // Update live score
+  document.getElementById('score-live').textContent = score;
+  document.getElementById('answered-live').textContent = answered;
+}
+
+function selectAnswer(selectedIdx) {
+  const q = sessionQuestions[currentIndex];
+  const buttons = document.querySelectorAll('.option-btn');
+
+  // Disable all buttons
+  buttons.forEach(btn => btn.disabled = true);
+
+  answered++;
+
+  if (selectedIdx === q.correct) {
+    score++;
+    buttons[selectedIdx].classList.add('correct');
+  } else {
+    buttons[selectedIdx].classList.add('incorrect');
+    buttons[q.correct].classList.add('correct');
+  }
+
+  // Show explanation
+  const expBox = document.getElementById('explanation-box');
+  document.getElementById('explanation-text').textContent = q.explanation;
+  expBox.style.display = 'flex';
+  // Force reflow for animation
+  void expBox.offsetWidth;
+  expBox.classList.add('show');
+
+  // Show next button
+  document.getElementById('btn-next').classList.add('visible');
+
+  // Update live score
+  document.getElementById('score-live').textContent = score;
+  document.getElementById('answered-live').textContent = answered;
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= TOTAL_QUESTIONS) {
+    showScore();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'block';
+
+  const pct = Math.round((score / TOTAL_QUESTIONS) * 100);
+  const wrong = TOTAL_QUESTIONS - score;
+
+  // Animate ring
+  const circumference = 2 * Math.PI * 68; // ~427.26
+  const offset = circumference * (1 - score / TOTAL_QUESTIONS);
+  setTimeout(() => {
+    document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  }, 100);
+
+  // Score display
+  document.getElementById('final-score-num').textContent = `${score}/${TOTAL_QUESTIONS}`;
+  document.getElementById('final-pct').textContent = `${pct}%`;
+
+  // Bento cells
+  document.getElementById('b-correct').textContent = score;
+  document.getElementById('b-wrong').textContent = wrong;
+  document.getElementById('b-pct').textContent = pct + '%';
+
+  // Result message
+  let title, msg;
+  if (pct >= 90) {
+    title = 'Outstanding! 🏆';
+    msg = 'Exceptional performance — you have mastered Chapter 1: Capacitors at ministerial level.';
+  } else if (pct >= 75) {
+    title = 'Excellent Work! ⭐';
+    msg = 'Strong understanding of capacitor theory. Review any missed explanations to reach perfection.';
+  } else if (pct >= 60) {
+    title = 'Good Effort! 📚';
+    msg = 'Solid foundation, but some concepts need revision. Focus on dielectric effects and energy equations.';
+  } else if (pct >= 50) {
+    title = 'Keep Practicing! 💪';
+    msg = 'You know the basics. Re-read the explanations carefully and attempt another session.';
+  } else {
+    title = 'More Study Needed 📖';
+    msg = 'Start by reviewing the core formulas: C = Q/ΔV, PE = ½CΔV², and series/parallel rules.';
+  }
+
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-message').textContent = msg;
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
